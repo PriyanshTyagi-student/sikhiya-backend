@@ -59,11 +59,12 @@ cors_origins_raw = os.getenv("CORS_ORIGINS", "*")
 cors_origins = ["*"] if cors_origins_raw.strip() == "*" else [
     origin.strip() for origin in cors_origins_raw.split(",") if origin.strip()
 ]
+allow_credentials = "*" not in cors_origins
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
-    allow_credentials=True,
+    allow_credentials=allow_credentials,
     allow_methods=["*"],
     allow_headers=["*"],
 )
