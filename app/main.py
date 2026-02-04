@@ -8,11 +8,11 @@ from jose import jwt, JWTError
 from pydantic import BaseModel
 from datetime import datetime, timedelta
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig
-from database import engine, Base, SessionLocal
-import models
-from models import User, Course  # Import User model from models.py
+from .database import engine, Base, SessionLocal
+from . import models
+from .models import User, Course  # Import User model from models.py
 try:
-    from admin_config import ADMIN_EMAIL, ADMIN_PASSWORD, ADMIN_NAME
+    from .admin_config import ADMIN_EMAIL, ADMIN_PASSWORD, ADMIN_NAME
 except Exception:
     ADMIN_EMAIL = "admin@sikhiya.com"
     ADMIN_PASSWORD = "admin123"
