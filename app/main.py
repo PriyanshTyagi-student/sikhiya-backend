@@ -24,9 +24,9 @@ try:
 except Exception as e:
     print(f"Table creation handled: {e}")
 
-MAIL_USERNAME = os.getenv("MAIL_USERNAME", "sikhiyaconnect@gmail.com")
-MAIL_PASSWORD = os.getenv("MAIL_PASSWORD", "eobq tpxi xydz uyiz")
-MAIL_FROM = os.getenv("MAIL_FROM", "sikhiyaconnect@gmail.com")
+MAIL_USERNAME = os.getenv("MAIL_USERNAME", "")
+MAIL_PASSWORD = os.getenv("MAIL_PASSWORD", "")
+MAIL_FROM = os.getenv("MAIL_FROM", "")
 MAIL_PORT = int(os.getenv("MAIL_PORT", "587"))
 MAIL_SERVER = os.getenv("MAIL_SERVER", "smtp.gmail.com")
 MAIL_STARTTLS = os.getenv("MAIL_STARTTLS", "true").lower() == "true"
@@ -689,7 +689,7 @@ def get_dashboard(user: User = Depends(get_current_user)):
 @app.get("/teacher/courses/{course_id}/modules")
 def get_course_modules(course_id: int, teacher: User = Depends(get_current_teacher), db: Session = Depends(get_db)):
     """Get all modules for a course"""
-    from models import CourseModule, CourseLesson
+    from .models import CourseModule, CourseLesson
     
     course = db.query(Course).filter(Course.id == course_id, Course.teacher_id == teacher.id).first()
     if not course:
@@ -720,7 +720,7 @@ def get_course_modules(course_id: int, teacher: User = Depends(get_current_teach
 @app.post("/teacher/courses/{course_id}/modules")
 def create_course_module(course_id: int, title: str = None, description: str = None, teacher: User = Depends(get_current_teacher), db: Session = Depends(get_db)):
     """Create a module for a course"""
-    from models import CourseModule
+    from .models import CourseModule
     
     course = db.query(Course).filter(Course.id == course_id, Course.teacher_id == teacher.id).first()
     if not course:
@@ -755,7 +755,7 @@ def create_lesson(
     db: Session = Depends(get_db),
 ):
     """Create a lesson in a module"""
-    from models import CourseModule, CourseLesson
+    from .models import CourseModule, CourseLesson
     
     course = db.query(Course).filter(Course.id == course_id, Course.teacher_id == teacher.id).first()
     if not course:
@@ -785,7 +785,7 @@ def create_lesson(
 @app.get("/teacher/courses/{course_id}/resources")
 def get_course_resources(course_id: int, teacher: User = Depends(get_current_teacher), db: Session = Depends(get_db)):
     """Get all resources for a course"""
-    from models import CourseResource
+    from .models import CourseResource
     
     course = db.query(Course).filter(Course.id == course_id, Course.teacher_id == teacher.id).first()
     if not course:
@@ -808,7 +808,7 @@ def get_course_resources(course_id: int, teacher: User = Depends(get_current_tea
 @app.post("/teacher/courses/{course_id}/resources")
 def upload_course_resource(course_id: int, teacher: User = Depends(get_current_teacher), db: Session = Depends(get_db)):
     """Upload a resource for a course (placeholder)"""
-    from models import CourseResource
+    from .models import CourseResource
     
     course = db.query(Course).filter(Course.id == course_id, Course.teacher_id == teacher.id).first()
     if not course:
@@ -839,7 +839,7 @@ def upload_course_resource(course_id: int, teacher: User = Depends(get_current_t
 @app.delete("/teacher/courses/{course_id}/resources/{resource_id}")
 def delete_course_resource(course_id: int, resource_id: int, teacher: User = Depends(get_current_teacher), db: Session = Depends(get_db)):
     """Delete a course resource"""
-    from models import CourseResource
+    from .models import CourseResource
     
     course = db.query(Course).filter(Course.id == course_id, Course.teacher_id == teacher.id).first()
     if not course:
@@ -916,7 +916,7 @@ def get_available_courses(user: User = Depends(get_current_user), db: Session = 
 @app.post("/courses/{course_id}/enroll")
 def request_enrollment(course_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Request to enroll in a course (requires teacher approval)"""
-    from models import StudentCourseEnrollment
+    from .models import StudentCourseEnrollment
     
     if user.role != "student":
         raise HTTPException(status_code=403, detail="Only students can enroll")
@@ -957,7 +957,7 @@ def request_enrollment(course_id: int, user: User = Depends(get_current_user), d
 @app.post("/courses/{course_id}/enrollment/{enrollment_id}/approve")
 def approve_enrollment(course_id: int, enrollment_id: int, teacher: User = Depends(get_current_teacher), db: Session = Depends(get_db)):
     """Teacher approves student enrollment request"""
-    from models import StudentCourseEnrollment
+    from .models import StudentCourseEnrollment
     
     course = db.query(Course).filter(Course.id == course_id, Course.teacher_id == teacher.id).first()
     if not course:
@@ -978,7 +978,7 @@ def approve_enrollment(course_id: int, enrollment_id: int, teacher: User = Depen
 @app.post("/courses/{course_id}/enrollment/{enrollment_id}/reject")
 def reject_enrollment(course_id: int, enrollment_id: int, teacher: User = Depends(get_current_teacher), db: Session = Depends(get_db)):
     """Teacher rejects student enrollment request"""
-    from models import StudentCourseEnrollment
+    from .models import StudentCourseEnrollment
     
     course = db.query(Course).filter(Course.id == course_id, Course.teacher_id == teacher.id).first()
     if not course:
@@ -999,7 +999,7 @@ def reject_enrollment(course_id: int, enrollment_id: int, teacher: User = Depend
 @app.post("/courses/{course_id}/unenroll")
 def unenroll_from_course(course_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Student unenrolls from a course"""
-    from models import StudentCourseEnrollment
+    from .models import StudentCourseEnrollment
     
     if user.role != "student":
         raise HTTPException(status_code=403, detail="Only students can unenroll")
@@ -1021,7 +1021,7 @@ def unenroll_from_course(course_id: int, user: User = Depends(get_current_user),
 @app.get("/student/enrollments")
 def get_student_enrollments(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Get all courses the student is enrolled in"""
-    from models import StudentCourseEnrollment
+    from .models import StudentCourseEnrollment
     
     if user.role != "student":
         raise HTTPException(status_code=403, detail="Only students can access this")
@@ -1050,7 +1050,7 @@ def get_student_enrollments(user: User = Depends(get_current_user), db: Session 
 @app.get("/teacher/courses/{course_id}/enrollment-requests")
 def get_enrollment_requests(course_id: int, teacher: User = Depends(get_current_teacher), db: Session = Depends(get_db)):
     """Get pending enrollment requests for a course"""
-    from models import StudentCourseEnrollment
+    from .models import StudentCourseEnrollment
     
     course = db.query(Course).filter(Course.id == course_id, Course.teacher_id == teacher.id).first()
     if not course:
